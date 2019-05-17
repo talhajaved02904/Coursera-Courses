@@ -239,10 +239,13 @@ this data frame as `sfo_feb_flights`. How many flights meet these criteria?
 <li> 3563 </li>
 <li> 32735 </li>
 </ol>
+68
 
 ```{r sfo-feb-flights}
 # type your code for Question 1 here, and Knit
-
+sfo_feb_flights <- nycflights %>%
+  filter(dest == "SFO", month == 2)
+str(sfo_feb_flights)
 ```
 
 
@@ -256,9 +259,13 @@ delays of `sfo_feb_flights`. Which of the following is false?
 <li> More than 50% of flights arrive on time or earlier than scheduled. </li>
 </ol>
 
+No flight is delayed more than 2 hours
 ```{r sfo-feb-flights-arrival-delays}
 # type your code for Question 2 here, and Knit
-
+ggplot(data  = sfo_feb_flights, aes(x=arr_delay))+
+  geom_histogram(binwidth = 5)
+sfo_feb_flights %>%
+  summarise(mean_ad=mean(arr_delay), sd_ad = sd(arr_delay), n = n())
 ```
 
 Another useful functionality is being able to quickly calculate summary 
@@ -285,10 +292,13 @@ IQR of arrival delays?
 <li> Delta and United Airlines </li>
 <li> Frontier Airlines </li>
 </ol>
+Delta and United Airlines
 
 ```{r sfo-feb-flights-arrival-delays-carrier}
 # type your code for Question 3 here, and Knit
-
+sfo_feb_flights %>%
+  group_by(carrier) %>%
+  summarise(median_ad = median(arr_delay), iqr_ad = IQR(arr_delay), n=n())
 ```
 
 ### Departure delays over months
@@ -319,10 +329,13 @@ nycflights %>%
 <li> October </li>
 <li> December </li>
 </ol>
-
+July
 ```{r highest-avg-dep-delay-month}
 # type your code for Question 4 here, and Knit
-
+nycflights %>%
+  group_by(month) %>%
+  summarise(mean_dd = mean(dep_delay)) %>%
+  arrange(desc(mean_dd))
 ```
 
 
@@ -337,9 +350,12 @@ nycflights %>%
 
 ```{r highest-median-dep-delay-month}
 # type your code for Question 5 here, and Knit
-
+nycflights %>%
+  group_by(month) %>%
+  summarise(median_dd = median(dep_delay)) %>%
+  arrange(desc(median_dd))
 ```
-
+December
 
 6.  Is the mean or the median a more reliable measure for deciding which month(s) to 
 avoid flying if you really dislike delayed flights, and why? 
@@ -421,7 +437,10 @@ which NYC airport would you choose to fly out of?
 
 ```{r on-time-dep-perc-airport}
 # type your code for Question 7 here, and Knit
-
+nycflights %>%
+  group_by(origin) %>%
+  summarise(ot_dep_rate = sum(dep_type == "on time") / n()) %>%
+  arrange(desc(ot_dep_rate))
 ```
 
 We can also visualize the distribution of on on time departure rate across 
