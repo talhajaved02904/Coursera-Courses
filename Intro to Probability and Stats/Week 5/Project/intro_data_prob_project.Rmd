@@ -1,0 +1,175 @@
+---
+title: "Exploring the BRFSS data"
+output: 
+  html_document: 
+    fig_height: 4
+    highlight: pygments
+    theme: spacelab
+---
+
+## Setup
+
+### Load packages
+
+```{r load-packages, message = FALSE}
+library(ggplot2)
+library(dplyr)
+```
+
+### Load data
+
+Make sure your data and R Markdown files are in the same directory. When loaded
+your data file will be called `brfss2013`. Delete this note when before you submit 
+your work. 
+
+```{r load-data}
+load("brfss2013.RData")
+```
+
+
+
+* * *
+
+## Part 1: Data
+The data collected by BRFSS used Random Digit Dialing (RDD) techniques to collect data from a random sample of the total population. Around 97.5% of the total US population had telephone coverage in 2012. This makes 2.5% of the population whom the result of the survey cannot be generalized. The survey language used was English and Spanish, leaving behind around 1% of the population. Moreover, the survey was only directed towards the adults but the 99% of the people refused to answer this question making this generalizable to the audience of every age. The data has fairly large number of males and female. Usually females are left behind in our society during such survey because of male dominance, but this survey has acted fairly in this regard. The survey questions consisted of only binary sex thus giving very vague information about others sexes i-e Trans. 
+	Although there have been some part of the US that has been left behind but the data collected can be generalized because it covers around 95% of the total population. In order to make the data perfect, a lot of financial sources would have been required. Inshort, data is a good bargain for the money spent on the surveys which can be generalized. 
+
+
+
+* * *
+
+## Part 2: Research questions
+
+**Research quesion 1:**
+Tobacco is a huge industry of the world. In order to increase their sales, they would like to know that which class of the people uses their products so that they can make their advertisements more user-centric. For this purpose, I will try to find a relationship between the income of the people and their usage of tobacco.
+
+**Research quesion 2:**
+
+**Research quesion 3:**
+
+
+* * *
+
+## Part 3: Exploratory data analysis
+
+**Research quesion 1:**
+
+### Cleaning the NA from the variables I will be using to make visualizing easier
+```{r}
+new_set <- brfss2013 %>%
+  select(usenow3, income2) %>%
+  filter(!is.na(usenow3)) %>%
+  filter(!is.na(income2)) 
+```
+
+### Plotting the income of the people
+```{r}
+ggplot(data = new_set, aes(x = income2))+
+  ggtitle("Income of the People")+
+  xlab("Income")+
+  ylab("Population")+
+  stat_count(width = 0.5)+
+  theme(axis.text.x=element_text(angle = 45, hjust=1))
+```
+
+This graph represents the division of the people on the basis of their salaries. We can see that most of the people have their salaries $75000 and greater.
+
+### Statistics of the income of the people
+```{r}
+new_set %>%
+  group_by(Income = income2) %>%
+  summarise(Percentage = 100 * n() /nrow(new_set))
+```
+
+This summary shows the statistics of the people based on their incomes. 27% percent of the people have their salaries greater than $75,000 which forms a major chunk of the population
+
+### Visualizing the tobacco usage of people
+```{r}
+ggplot(data = new_set, aes(x = usenow3))+
+  ggtitle("Tobacco Consumption by people")+
+  xlab("Tobacco consumption")+
+  ylab("Population")+
+  stat_count(width = 0.5)
+  
+```
+
+This graph represents the tobacco consumption by the people. Here we can see that major portion of the people do not consume tobacco at all. 
+
+### Statistics of the tobacco usage
+```{r}
+new_set %>%
+  group_by(tobacco_consumption = usenow3) %>%
+  summarise(percentage = 100 * n() /nrow(new_set))
+```
+This shows the statistics based on the tobacco consumption of the people. 
+
+
+### Visualization based on income and tobacco consumption
+```{r}
+ggplot(data = new_set ,aes(fill=usenow3, x = income2))+
+  geom_bar() + 
+  ggtitle("Distribution of the people based on tobacco consumption and income")+
+  xlab("Income")+
+  ylab("Population")+
+  theme(axis.text.x=element_text(angle = 45, hjust=1))
+
+```
+
+This graph represents the tobacco consumption based on the incomes of the people. We are interested in the people who use tobacco daily. 
+For this, we need to filter out the people who use tobacco Every day
+
+### Visualization based on daily tobacco consumption
+```{r}
+new_set %>%
+  group_by(income2)%>%
+  select(Income = income2,usenow3) %>%
+  summarise(every_day = sum(usenow3 == "Every day"))
+
+```
+This table shows the people that use tobacco dailiy. 
+
+```{r}
+set_everyday <- new_set %>%
+  select(income2, usenow3)%>%
+  filter(usenow3 == "Every day")
+```
+ 
+
+```{r}
+ggplot(data = set_everyday ,aes(x = income2))+
+  stat_count(width = 0.5) + 
+  ggtitle("Distribution of the people who use tobacco every day")+
+  xlab("Income")+
+  ylab("Population")+
+  theme(axis.text.x=element_text(angle = 45, hjust=1))
+
+```
+
+This graph represent those people who consume tobacco daily. We can see that the graph is right skewed. Greater the income, greater the tobacco consumption. But this graph does not correctly interprets the relationship between tobacco consumption and income level. As we have seen above that people who earn more than $75000 were far greater then the other people, This result can thought to be biased as the number of people in that perticular class were greater.
+
+```{r}
+new_set %>%
+  group_by(income2)%>%
+  select(Income = income2,usenow3) %>%
+  summarise(Every_day = sum(usenow3 == "Every day")/n())
+```
+
+We can remove the biase based on the percentage of the consumption in each group. According to this table, the max consumption is by the people with income 50000$-75000$.
+
+### Conclusion:
+So inorder to increase sales, the tobacco indusrty should target the audience that have their incomes greater than 50,000$. The reason being the majority of these people consume tobacco on daily basis.
+
+**Research quesion 2:**
+
+```{r}
+
+```
+
+
+
+**Research quesion 3:**
+
+```{r}
+
+```
+
