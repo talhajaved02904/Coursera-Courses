@@ -44,9 +44,10 @@ The data collected by BRFSS used Random Digit Dialing (RDD) techniques to collec
 Tobacco is a huge industry of the world. In order to increase their sales, they would like to know that which class of the people uses their products so that they can make their advertisements more user-centric. For this purpose, I will try to find a relationship between the income of the people and their usage of tobacco.
 
 **Research quesion 2:**
+Sleep is an important part of human life. Now-a-days alot of males are not getting a good sleep. For this purpose I will investigate the type of sleep males are getting based on their incomes and to find any correlation between the two.
 
 **Research quesion 3:**
-
+Body can play a crucial role in the personality of a person. In this question, I will try to find a relation between female’s fitness and the type of income she is getting.
 
 * * *
 
@@ -154,22 +155,225 @@ new_set %>%
   summarise(Every_day = sum(usenow3 == "Every day")/n())
 ```
 
-We can remove the biase based on the percentage of the consumption in each group. According to this table, the max consumption is by the people with income 50000$-75000$.
+We can remove the biase based on the percentage of the consumption in each group. According to this table, the max consumption is by the people with income $50000-$75000 .
 
 ### Conclusion:
 So inorder to increase sales, the tobacco indusrty should target the audience that have their incomes greater than 50,000$. The reason being the majority of these people consume tobacco on daily basis.
 
 **Research quesion 2:**
 
+### Cleaning the variables to use
+
 ```{r}
+q2_set <- brfss2013 %>%
+  select(sex, income = income2, sleep = sleptim1) %>%
+  filter(!is.na(income)) %>%
+  filter(!is.na(sleep)) %>%
+  filter(!is.na(sex))
+```
+
+### Visualizing the sex of the population
+```{r}
+ggplot(data = q2_set, aes(x = sex))+
+  ggtitle("Sex distribuation of the people")+
+  xlab("Sex")+
+  ylab("Population")+
+  stat_count(width = 0.2)
+  
+```
+
+This plot shows the distribution of the male and female. We can see that most of the respondents were female
+
+### Statistics of the sex
+```{r}
+q2_set %>%
+  group_by(sex) %>%
+  summarise(Percentage = 100 * n() /nrow(new_set))
+```
+This tables shows the statistics of the sexes. We can see that females are 4% greater than that of males.
+
+### Adding the sleep type
+```{r}
+q2_set <- q2_set %>%
+  mutate(sleep_type = ifelse(sleep < 7, "Not Good Sleep","Good Sleep" ))
+```
+Sleep less than 7 hours daily is not enough for people. So I have made a new variable in the data sleep_type that represents whether the people are getting enough sleep
+
+
+### Visualizing the sleep type of the people
+```{r}
+ggplot(data = q2_set, aes(x = sleep_type))+
+  ggtitle("Sleep type distribuation of the people")+
+  xlab("Sleep Type")+
+  ylab("Population")+
+  stat_count(width = 0.2)
+```
+
+Here, we can see that majority of the people are getting good sleep.
+
+### Statistics of the sleep
+```{r}
+q2_set %>%
+  group_by(sleep_type) %>%
+  summarise(Percentage = 100 * n() /nrow(new_set))
+
+```
+This table shows that approxiamtely 68% of the people are having a good sleep
+
+### Visualizing sleep for men
+As our question want to find the relationship between income and sleep in males, we need to filter out females from the data set
+
+```{r}
+q2 <- q2_set %>%
+  filter(sex == "Male")
+  
+```
+This will give us the data only for males
+
+Now lets visualize the sleep type in males
+```{r}
+ggplot(data = q2_set, aes(x = sleep_type))+
+  ggtitle("Sleep type distribution of the males")+
+  xlab("Sleep Type")+
+  ylab("Population")+
+  stat_count(width = 0.2)
+```
+Here, we can see in the graph that a huge portion of the participants get a good sleep
+
+### Statistics of the sleep type of males
+```{r}
+q2_set %>%
+  group_by(sleep_type) %>%
+  summarise(Percentage = 100 * n() /nrow(q2_set))
+```
+Here we can see that sleep type ratio is pretty much the same
+
+### Visualizing sleep type in men w.r.t their incomes
+
+```{r}
+ggplot(data = q2_set ,aes(fill=sleep_type, x = income))+
+  geom_bar() + 
+  ggtitle("Distribution of men based on sleep type and income")+
+  xlab("Income")+
+  ylab("Population")+
+  theme(axis.text.x=element_text(angle = 45, hjust=1))
+
+```
+It is evident from the graph that as the income increases, the number of men with good sleep also increase as compared to the not good sleep. 
+
+### Statistics of the men based on sleep type and income
+```{r}
+q2_set %>%
+  group_by(income)%>%
+  select(Income = income,sleep_type) %>%
+  summarise(good_sleep = sum(sleep_type == "Good Sleep")/n(), not_good_sleep = sum(sleep_type == "Not Good Sleep")/n())
+```
+
+It is evident from the table that as the income of the people is increasing, the percentage of the people who are getting a good sleep are also increasing. 
+
+```{r}
+q2_set %>%
+  group_by(income) %>%
+  select(Income = income,sleep_type) %>%
+   summarise(good_sleep = sum(sleep_type == "Good Sleep"), not_good_sleep = sum(sleep_type == "Not Good Sleep"))
 
 ```
 
+Here we can see that actual number of males who are getting good sleep. 
 
+### Conclusion
+Sleep is a very important part of human life. It is event from the above study that there exists a corelation between the sleep type and the income of the males. We can notice here that as the income of the males are increasing, the percentage of the people who are having a good sleep are also increasing and vice versa.
 
 **Research quesion 3:**
 
+### Cleaning the variables to use
+
 ```{r}
+q3_set <- brfss2013 %>%
+  select(income = income2, height = htm4, weight = wtkg3, sex) %>%
+  filter(!is.na(income)) %>%
+  filter(!is.na(height)) %>%
+  filter(!is.na(sex)) %>%
+  filter(!is.na(weight)) 
+  
+```
+
+### Calculating BMI of the people
+```{r}
+q3_set <- q3_set %>%
+  mutate(bmi = weight/height^2 * 100) %>%
+  mutate(fitness = ifelse(bmi >= 18.5 & bmi < 25, "Fit","Not Fit"))
+  
+```
+Now, the variable bmi will have the bmi of all the participants and fitness will tell about the fitness of the people
+
+### Visualizing fitness of the people
+```{r}
+ggplot(data = q3_set, aes(x = fitness))+
+  ggtitle("Fitness distribution of the people")+
+  xlab("Fitness")+
+  ylab("Population")+
+  stat_count(width = 0.5)
+```
+
+Here, we can see that fit people are nearly half as the non-fit ones.
+
+### Statistics of the fitness of people
+```{r}
+q3_set %>%
+  group_by(fitness) %>%
+  summarise(Percentage = 100 * n() /nrow(q3_set))
+```
+From the upper statistics, it is evident that fit people are nearly half as the non fit people
+
+### Visualizing fitness of the females
+```{r}
+q3_set <- q3_set %>%
+  filter (sex == "Female")
+```
+Removing the data of the males from our set
+
+```{r}
+ggplot(data = q3_set, aes(x = fitness))+
+  ggtitle("Fitness distribution of the females")+
+  xlab("Fitness")+
+  ylab("Population")+
+  stat_count(width = 0.5)
+```
+
+Here, we can see that the fitness has increased. This means that females are more fit as compared to the males
+
+### Statistics of the fitness of women
+```{r}
+q3_set %>%
+  group_by(fitness) %>%
+  summarise(Percentage = 100 * n() /nrow(q3_set))
+```
+Here, we can see that fit women are not half as compared to non-fit one. the perrcentage of fit women are 37% as compared to the total population that were 32%.
+
+### Distribution of women based on income and their fitness
+```{r}
+ggplot(data = q3_set ,aes(fill=fitness, x = income))+
+  geom_bar() + 
+  ggtitle("Distribution of females based on fitness and income")+
+  xlab("Income")+
+  ylab("Population")+
+  theme(axis.text.x=element_text(angle = 45, hjust=1))
 
 ```
 
+We can see from the above graph that as the the income is increasing, the fitness of the females are also increasing.
+
+### Statistics of the females based on income and their fitness
+```{r}
+q3_set %>%
+  group_by(income)%>%
+  select(Income = income,fitness) %>%
+  summarise(fit = sum(fitness == "Fit")/n(), not_fit = sum(fitness == "Not Fit")/n())
+
+```
+
+From the above table, it is evident that most of the fit people lie in the income greater than $75,000. As the income is increasing, more females tend to be fit in that category
+
+### Conclusion
+Fitness can play an important part in the jobs. From the above statistics, we can see that most of the women that are fit have their incomes greater than $75,000. There seems to be a co-relation between the income of the females and their fitness.
