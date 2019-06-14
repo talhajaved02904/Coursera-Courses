@@ -76,8 +76,8 @@ ames %>%
 1.  Which of the following is **false**?
 <ol>
 <li> The distribution of areas of houses in Ames is unimodal and right-skewed. </li>
-<li> 50\% of houses in Ames are smaller than 1,499.69 square feet. This is false </li>
-<li> The middle 50\% of the houses range between approximately 1,126 square feet and 1,742.7 square feet.  </li>
+<li> 50\% of houses in Ames are smaller than 1,499.69 square feet. </li>
+<li> The middle 50\% of the houses range between approximately 1,126 square feet and 1,742.7 square feet. This is false </li>
 <li> The IQR is approximately 616.7 square feet. </li>
 <li> The smallest house is 334 square feet and the largest is 5,642 square feet. </li>
 </ol>
